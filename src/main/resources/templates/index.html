@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="partials :: head ('Home')">
+</head>
+<body>
+<nav th:replace="partials :: navbar"></nav>
+<div style="
+    width: 75%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    margin: auto;
+">
+    <img style="width: 100%;" th:src="@{/img/baseball-diamond-lit-at-night.jpg}" alt="">
+</div>
+
+<div class="jumbotron text-center mt-3 mb-3 col">
+    <p>Connecting baseball players and enthusiasts around the world.</p>
+</div>
+
+<div class="container wrapper p-0">
+    <div class="row g-0">
+        <div class="col-lg-7 col-md-6">
+            <div class="container-background h-100">
+                <h2>About Sandlot Connect</h2>
+                <p>Sandlot Connect is an engaging social media platform inspired by the grassroots resurgence of sandlot
+                    baseball across Texas and beyond. Catering to both seasoned players and newcomers alike, it fosters
+                    a supportive community for baseball enthusiasts to connect and communicate. By providing a hub for
+                    team members to exchange ideas and strategies, it strengthens bonds on and off the field. For those
+                    eager to immerse themselves in the sport, Sandlot Connect serves as a gateway to discovering local
+                    teams, events, and opportunities. Ultimately, this platform unites baseball lovers and fuels their
+                    shared passion for the game.
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-5 col-md-6 d-flex justify-content-center">
+            <img th:src="@{/img/baseball-bat-ball (1).jpg}" alt="Baseball bat">
+        </div>
+    </div>
+</div>
+
+<footer th:replace="partials :: footer">
+    <p>&copy; 2023 My Website. All rights reserved.</p>
+</footer>
+<div th:replace="partials :: js"></div>
+</body>
+</html>
