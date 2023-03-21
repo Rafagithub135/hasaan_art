@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class HasaanArtApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(HasaanArtApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(HasaanArtApplication.class, args);
+    }
 
 }
