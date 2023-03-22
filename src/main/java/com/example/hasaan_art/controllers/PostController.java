@@ -1,4 +1,4 @@
-package com.example.hasaan_art.controllers;
+package com.codeup.sandlotconnect.controllers;
 
 import com.codeup.sandlotconnect.models.Comment;
 import com.codeup.sandlotconnect.models.Post;
@@ -8,7 +8,7 @@ import com.codeup.sandlotconnect.repositories.CommentsRepository;
 import com.codeup.sandlotconnect.repositories.PostsRepository;
 import com.codeup.sandlotconnect.repositories.TeamRepository;
 import com.codeup.sandlotconnect.repositories.UserRepository;
-import com.example.hasaan_art.models.Customer;
+import com.example.hasaan_art.models.Art;
 import com.example.hasaan_art.repositories.ArtRepository;
 import com.example.hasaan_art.repositories.CommentsRepository;
 import com.example.hasaan_art.repositories.CustomerRepository;
@@ -34,16 +34,16 @@ public class PostsController {
     private final CommentsRepository commentDao;
 
     public PostsController(ArtRepository artDao, CustomerRepository customerDao, PostsRepository postDao, CommentsRepository commentDao) {
-        this.artDao = artDao;
-        this.customerDao = customerDao;
+        this.teamDao = artDao;
+        this.userDao = customerDao;
         this.postDao = postDao;
         this.commentDao = commentDao;
     }
-    @GetMapping("/art/{id}/posts")
+    @GetMapping("/teams/{id}/posts")
     public String showTeamPosts(@PathVariable long id, Model model) {
-        Customer loggedCustomer = customerDao.findByCustomername(SecurityContextHolder.getContext().getAuthentication().getName());
-        Art art = teamDao.findArtById(id);
-        List<Customer> users = userDao.findAllByArt(art);
+        Customer loggedCustomer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
+        Art art = artDao.findArtById(id);
+        List<Customer> customers = customerDao.findAllByArt(art);
         List<Post> posts = postDao.findAll(Sort.by(Sort.Direction.DESC, "timestamp"));
         List<Post> filteredPosts = new ArrayList<>();
         if (!art.getCustomers().contains(loggedCustomer)) {
@@ -60,65 +60,66 @@ public class PostsController {
         model.addAttribute("customer", customers);
         model.addAttribute("art", art);
         model.addAttribute("posts", filteredPosts);
-        return "posts/index";
+        return "posts/art-posts";
     }
 
-    @PostMapping("/art/{id}/posts/create")
+    @PostMapping("/teams/{id}/posts/create")
     public String createPost(@PathVariable long id, Model model, @RequestParam String title, @RequestParam String content) {
-        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
+        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = new Post();
         post.setTitle(title);
         post.setContent(content);
         post.setTimestamp(new Date());
-        post.setCustomer(customer);
+        post.setUser(user);
         postDao.save(post);
-        return "redirect:/art/" + id + "/posts";
+        return "redirect:/teams/" + id + "/posts";
     }
 
-    @PostMapping("/art/{id}/posts/{postId}/delete")
+    @PostMapping("/teams/{id}/posts/{postId}/delete")
     public String deletePost(@PathVariable long id, @PathVariable long postId) {
-        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
+        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = postDao.findPostById(postId);
-        if (customer.getId() == post.getCustomer().getId()) {
+        if (user.getId() == post.getUser().getId()) {
             postDao.deleteById(postId);
         }
-        return "redirect:/art/" + id + "/posts";
+        return "redirect:/teams/" + id + "/posts";
     }
 
-    @PostMapping("/art/{id}/posts/{postId}/edit")
+    @PostMapping("/teams/{id}/posts/{postId}/edit")
     public String editPost(@PathVariable long id, @PathVariable long postId, @RequestParam(name = "post-title") String title, @RequestParam(name = "post-content") String content) {
-        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
+        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = postDao.findPostById(postId);
-        if (customer.getId() == post.getCustomer().getId()) {
+        if (user.getId() == post.getUser().getId()) {
             post.setTitle(title);
             post.setContent(content);
             post.setEditing(false);
             postDao.save(post);
         }
-        return "redirect:/art/" + id + "/posts";
+        return "redirect:/teams/" + id + "/posts";
     }
 
-    @PostMapping("/art/{id}/posts/{postId}/comments/create")
+    @PostMapping("/teams/{id}/posts/{postId}/comments/create")
     public String createComment(@PathVariable long id, @PathVariable long postId, @RequestParam(name = "comment-content") String content) {
-        Art art = artDao.findArtById(id);
-        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
+        Team team = teamDao.findTeamById(id);
+        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = postDao.findPostById(postId);
-        if (!art.getCustomer().contains(customer)) {
-            return "redirect:/art/" + id + "/posts";
+        if (!team.getUsers().contains(user)) {
+            return "redirect:/teams/" + id + "/posts";
         }
-        Comment comment = new Comment(content, new Date(), customer, post);
+        Comment comment = new Comment(content, new Date(), user, post);
         commentDao.save(comment);
-        return "redirect:/art/" + id + "/posts";
+        return "redirect:/teams/" + id + "/posts";
     }
 
-    @PostMapping("/art/{id}/posts/{postId}/comments/{commentId}/delete")
+    @PostMapping("/teams/{id}/posts/{postId}/comments/{commentId}/delete")
     public String deleteComment(@PathVariable long id, @PathVariable long postId, @PathVariable long commentId) {
-        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
+        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = postDao.findPostById(postId);
         Comment comment = commentDao.findCommentById(commentId);
-        if (customer.getId() == comment.getCustomer().getId()) {
+        if (user.getId() == comment.getUser().getId()) {
             commentDao.deleteById(commentId);
         }
-        return "redirect:/art/" + id + "/posts";
+        return "redirect:/teams/" + id + "/posts";
     }
+
 }
