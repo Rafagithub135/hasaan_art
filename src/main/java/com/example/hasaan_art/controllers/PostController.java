@@ -1,13 +1,5 @@
-package com.codeup.sandlotconnect.controllers;
+package com.example.hasaan_art.controllers;
 
-import com.codeup.sandlotconnect.models.Comment;
-import com.codeup.sandlotconnect.models.Post;
-import com.codeup.sandlotconnect.models.Team;
-import com.codeup.sandlotconnect.models.User;
-import com.codeup.sandlotconnect.repositories.CommentsRepository;
-import com.codeup.sandlotconnect.repositories.PostsRepository;
-import com.codeup.sandlotconnect.repositories.TeamRepository;
-import com.codeup.sandlotconnect.repositories.UserRepository;
 import com.example.hasaan_art.models.Art;
 import com.example.hasaan_art.repositories.ArtRepository;
 import com.example.hasaan_art.repositories.CommentsRepository;
@@ -39,7 +31,7 @@ public class PostsController {
         this.postDao = postDao;
         this.commentDao = commentDao;
     }
-    @GetMapping("/teams/{id}/posts")
+    @GetMapping("/art/{id}/posts")
     public String showTeamPosts(@PathVariable long id, Model model) {
         Customer loggedCustomer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
         Art art = artDao.findArtById(id);
@@ -63,63 +55,62 @@ public class PostsController {
         return "posts/art-posts";
     }
 
-    @PostMapping("/teams/{id}/posts/create")
+    @PostMapping("/art/{id}/posts/create")
     public String createPost(@PathVariable long id, Model model, @RequestParam String title, @RequestParam String content) {
-        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        User user = userDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = new Post();
         post.setTitle(title);
         post.setContent(content);
         post.setTimestamp(new Date());
-        post.setUser(user);
+        post.setCustomer(customer);
         postDao.save(post);
-        return "redirect:/teams/" + id + "/posts";
+        return "redirect:/art/" + id + "/posts";
     }
 
-    @PostMapping("/teams/{id}/posts/{postId}/delete")
+    @PostMapping("/art/{id}/posts/{postId}/delete")
     public String deletePost(@PathVariable long id, @PathVariable long postId) {
-        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = postDao.findPostById(postId);
-        if (user.getId() == post.getUser().getId()) {
+        if (customer.getId() == post.getCustomer().getId()) {
             postDao.deleteById(postId);
         }
-        return "redirect:/teams/" + id + "/posts";
+        return "redirect:/art/" + id + "/posts";
     }
 
-    @PostMapping("/teams/{id}/posts/{postId}/edit")
+    @PostMapping("/art/{id}/posts/{postId}/edit")
     public String editPost(@PathVariable long id, @PathVariable long postId, @RequestParam(name = "post-title") String title, @RequestParam(name = "post-content") String content) {
-        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = postDao.findPostById(postId);
-        if (user.getId() == post.getUser().getId()) {
+        if (customer.getId() == post.getCustomer().getId()) {
             post.setTitle(title);
             post.setContent(content);
             post.setEditing(false);
             postDao.save(post);
         }
-        return "redirect:/teams/" + id + "/posts";
+        return "redirect:/art/" + id + "/posts";
     }
 
-    @PostMapping("/teams/{id}/posts/{postId}/comments/create")
+    @PostMapping("/art/{id}/posts/{postId}/comments/create")
     public String createComment(@PathVariable long id, @PathVariable long postId, @RequestParam(name = "comment-content") String content) {
-        Team team = teamDao.findTeamById(id);
-        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        Art art = artDao.findArtById(id);
+        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = postDao.findPostById(postId);
-        if (!team.getUsers().contains(user)) {
-            return "redirect:/teams/" + id + "/posts";
+        if (!art.getCustomers().contains(customer)) {
+            return "redirect:/art/" + id + "/posts";
         }
-        Comment comment = new Comment(content, new Date(), user, post);
+        Comment comment = new Comment(content, new Date(), customer, post);
         commentDao.save(comment);
-        return "redirect:/teams/" + id + "/posts";
+        return "redirect:/art/" + id + "/posts";
     }
 
-    @PostMapping("/teams/{id}/posts/{postId}/comments/{commentId}/delete")
+    @PostMapping("/art/{id}/posts/{postId}/comments/{commentId}/delete")
     public String deleteComment(@PathVariable long id, @PathVariable long postId, @PathVariable long commentId) {
-        User user = userDao.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = postDao.findPostById(postId);
         Comment comment = commentDao.findCommentById(commentId);
-        if (user.getId() == comment.getUser().getId()) {
+        if (customer.getId() == comment.getCustomer().getId()) {
             commentDao.deleteById(commentId);
         }
-        return "redirect:/teams/" + id + "/posts";
+        return "redirect:/art/" + id + "/posts";
     }
-
 }
