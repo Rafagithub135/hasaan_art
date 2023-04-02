@@ -1,6 +1,8 @@
 package com.example.hasaan_art.controllers;
 
 import com.example.hasaan_art.models.Art;
+import com.example.hasaan_art.models.Customer;
+import com.example.hasaan_art.models.Post;
 import com.example.hasaan_art.repositories.ArtRepository;
 import com.example.hasaan_art.repositories.CommentsRepository;
 import com.example.hasaan_art.repositories.CustomerRepository;
@@ -20,14 +22,14 @@ import java.util.List;
 
 @Controller
 public class PostsController {
-    private final ArtRepository teamDao;
-    private final CustomerRepository userDao;
+    private final ArtRepository artDao;
+    private final CustomerRepository customerDao;
     private final PostsRepository postDao;
     private final CommentsRepository commentDao;
 
     public PostsController(ArtRepository artDao, CustomerRepository customerDao, PostsRepository postDao, CommentsRepository commentDao) {
-        this.teamDao = artDao;
-        this.userDao = customerDao;
+        this.artDao = artDao;
+        this.customerDao = customerDao;
         this.postDao = postDao;
         this.commentDao = commentDao;
     }
@@ -57,7 +59,7 @@ public class PostsController {
 
     @PostMapping("/art/{id}/posts/create")
     public String createPost(@PathVariable long id, Model model, @RequestParam String title, @RequestParam String content) {
-        User user = userDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
+        Customer customer = customerDao.findByCustomer(SecurityContextHolder.getContext().getAuthentication().getName());
         Post post = new Post();
         post.setTitle(title);
         post.setContent(content);
